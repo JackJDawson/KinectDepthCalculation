@@ -16,13 +16,15 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="1">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <Viewbox Grid.Column="0" HorizontalAlignment="Center">
-            <Image Source="{Binding DepthImageSource}" Stretch="UniformToFill" Name="depthImageViewer" MouseDown="depthImageViewer_MouseDown"/>
-        </Viewbox>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Viewbox Grid.Column="0" HorizontalAlignment="Center">
+                <Image Source="{Binding DepthImageSource}" Stretch="UniformToFill" Name="depthImageViewer" MouseDown="depthImageViewer_MouseDown"/>
+            </Viewbox>
+            
+
             <StackPanel Grid.Column="1">
                 <DockPanel Margin="10 10 10 10">
                     <Label DockPanel.Dock="Left">Maximum Depth</Label>
@@ -47,6 +49,7 @@
                 </DockPanel>
 
             </StackPanel>
+            
         </Grid>
 
     </Grid>
