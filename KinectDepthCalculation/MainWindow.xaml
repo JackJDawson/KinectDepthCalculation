@@ -23,7 +23,7 @@
             <Viewbox Grid.Column="0" HorizontalAlignment="Center">
                 <Image Source="{Binding DepthImageSource}" Stretch="UniformToFill" Name="depthImageViewer" MouseDown="depthImageViewer_MouseDown"/>
             </Viewbox>
-            
+
 
             <StackPanel Grid.Column="1">
                 <DockPanel Margin="10 10 10 10">
@@ -31,25 +31,13 @@
                     <TextBox Text="{Binding ElementName=depthValue, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" MaxLength="4" Width="30"/>
                     <Slider Minimum="1" Maximum="{Binding MaximumDepth}" TickFrequency="1" IsSnapToTickEnabled="True" Name="depthValue" Value="8192" MinWidth="200" ValueChanged="DepthSlider_ValueChanged"></Slider>
                 </DockPanel>
-                <DockPanel Margin="10 10 10 10">
-                    <Label DockPanel.Dock="Left">Region 1</Label>
-                    <Button DockPanel.Dock="Right" Click="Button_Draw_Region_1_Click">Draw</Button>
-                </DockPanel>
-                <DockPanel Margin="10 10 10 10">
-                    <Label DockPanel.Dock="Left" Margin="0 0 20 0">Mean Depth</Label>
-                    <TextBox Text="-1" Name="Region1DepthValue" Focusable="False"/>
-                </DockPanel>
-                <DockPanel Margin="10 10 10 10">
-                    <Label DockPanel.Dock="Left">Region 2</Label>
-                    <Button DockPanel.Dock="Right" Click="Button_Draw_Region_2_Click">Draw</Button>
-                </DockPanel>
-                <DockPanel Margin="10 10 10 10">
-                    <Label DockPanel.Dock="Left" Margin="0 0 20 0">Mean Depth</Label>
-                    <TextBox Text="-1" Name="Region2DepthValue" Focusable="False"/>
-                </DockPanel>
+                <DockPanel Margin="10 10 10 10"/>
+                <DockPanel Margin="10 10 10 10"/>
+                <DockPanel Margin="10 10 10 10"/>
+                <DockPanel Margin="10 10 10 10"/>
 
             </StackPanel>
-            
+
         </Grid>
 
     </Grid>
