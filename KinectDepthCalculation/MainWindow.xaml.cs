@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
+using System.Collections;
 
 
 
@@ -36,6 +37,16 @@ namespace KinectDepthCalculation
 
         private int maxIntensityChosen = 8192;
 
+        private ArrayList trackPoints;
+
+        private Dictionary<Point, int> depthByPoint = new Dictionary<Point, int>();
+
+        private Boolean selectingTrackPoint = false;
+
+        private string pointCount;
+
+        private bool tracking = false;
+
         string csvname;
         StreamWriter write;
 
@@ -55,15 +66,9 @@ namespace KinectDepthCalculation
 
             this.DataContext = this;
 
+            trackPoints = new ArrayList();
 
-          /*  Console.WriteLine(Directory.GetCurrentDirectory());
-            csvname = String.Format("{0}\\{1}.csv",Directory.GetCurrentDirectory(), System.DateTime.Now.Ticks);
-            write = new StreamWriter(csvname);
-            write.WriteLine("Timestamp,AvgDepth");
-            write.Flush();
-            write.AutoFlush = true; */
-
-    }
+        }
 
         private void Reader_DepthFrameArrived(object sender, DepthFrameArrivedEventArgs e)
         {
@@ -86,10 +91,6 @@ namespace KinectDepthCalculation
                         DepthFrameProcessed = true;
                     }
                 }
-                else
-                {
-                    Console.WriteLine("halp");
-                }
             }
 
             if (DepthFrameProcessed)
@@ -107,7 +108,7 @@ namespace KinectDepthCalculation
             {
                 float intensity = this.DepthFrameData[i];
 
-                intensity = (intensity >= sensor.DepthFrameSource.DepthMinReliableDistance && intensity <= sensor.DepthFrameSource.DepthMaxReliableDistance) ? intensity / 256 * 8000 : 0;
+                intensity = (intensity >= sensor.DepthFrameSource.DepthMinReliableDistance && intensity <= sensor.DepthFrameSource.DepthMaxReliableDistance) ? intensity : 0;
 
                 this.depthPixels[i] = (byte) intensity;
             }
@@ -117,42 +118,28 @@ namespace KinectDepthCalculation
                  new Int32Rect(0, 0, this.bitmap.PixelWidth, this.bitmap.PixelHeight),
                  this.depthPixels,
                  this.bitmap.PixelWidth,
-                 0) ;
+                 0);
 
+            if (tracking)
+            {
+                depthByPoint.Clear();
+                foreach (Point point in trackPoints)
+                {
+                    int count = pointToCount(point, this.bitmap.PixelWidth);
+                    depthByPoint.Add(point, this.DepthFrameData[count]);
+                }
 
+                write.Write(String.Format("{0}:{1}:{2}:{3},",System.DateTime.Now.Hour, System.DateTime.Now.Minute, System.DateTime.Now.Second, System.DateTime.Now.Millisecond));
 
+                foreach(Point point in depthByPoint.Keys)
+                {
+                    write.Write(String.Format("{0},", depthByPoint[point]));
+                }
 
+                write.WriteLine();
+                write.Flush();
+            }
 
-            /*              Region1DepthValue.Text = region1depth.ToString();
-                      //  Region2DepthValue.Text= region2depth.ToString();
-                      //Write depth data to CSV
-                  if (region1depth > 0)
-                      {
-
-                          write.WriteLine(String.Format("{0}:{1}:{2}:{3},{4}", System.DateTime.Now.Hour, System.DateTime.Now.Minute, System.DateTime.Now.Second, System.DateTime.Now.Millisecond, region1depth));
-
-                          region1bmp = new WriteableBitmap((int)Math.Abs(region1Corners.Item1.X - region1Corners.Item2.X), (int) Math.Abs(region1Corners.Item1.Y - region1Corners.Item2.Y), 96, 96, PixelFormats.Gray8, null);
-                          region1bmp.WritePixels(new Int32Rect(0, 0, region1bmp.PixelWidth, region1bmp.PixelHeight), region1Depths, region1bmp.PixelWidth, 0);
-
-                          BitmapEncoder encoder = new PngBitmapEncoder();
-                          encoder.Frames.Add(BitmapFrame.Create(region1bmp));
-
-                          try
-                          {
-                              using (FileStream fs = new FileStream(String.Format("{0}\\{1}.png", Directory.GetCurrentDirectory(), System.DateTime.Now.Ticks), FileMode.Create))
-                              {
-                                  encoder.Save(fs);
-                              }
-                          }
-                          catch (Exception e)
-                          {
-                              Console.WriteLine(e.ToString());
-                          }
-
-
-                          region1Depths = new ushort[region1Depths.Length];
-                      } 
-           */
         }
 
         //In theory, the Kinect will clean up after itself. In practice, it sometimes doesn't. Either way, it's not a huge deal to clean up for it.
@@ -190,8 +177,6 @@ namespace KinectDepthCalculation
         }
 
 
-
-
         private void depthImageViewer_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
@@ -200,11 +185,24 @@ namespace KinectDepthCalculation
                 mousePos.X = Math.Floor(mousePos.X);
                 mousePos.Y = Math.Floor(mousePos.Y);
 
+                if (selectingTrackPoint)
+            {
+                addTrackPointButton.IsEnabled = true;
+                selectingTrackPoint = false;
+
+                trackPoints.Add(mousePos);
+
+                pointCount = trackPoints.Count.ToString();
+                TrackPointCount.Content = pointCount;
+            }
+
+                
+
+
         }
 
         private void processRegions()
         {
-
             double frameHeight = depthImageViewer.ActualHeight;
             double frameWidth = depthImageViewer.ActualWidth;
             int pixelHeight = this.bitmap.PixelHeight;
@@ -212,8 +210,54 @@ namespace KinectDepthCalculation
 
             double verticalScale = frameHeight / pixelHeight;
             double horizontalScale = frameWidth / pixelWidth;
-
         }
-            
+
+        private void addTrackPointButton_Click(object sender, RoutedEventArgs e)
+        {
+            selectingTrackPoint = true;
+            addTrackPointButton.IsEnabled = false;
+        }
+
+        private void clearTrackPointButton_Click(object sender, RoutedEventArgs e)
+        {
+            trackPoints.Clear();
+            pointCount = trackPoints.Count.ToString();
+            TrackPointCount.Content = pointCount;
+        }
+
+        private Point countToPoint(int count, int stride) => new Point(count % stride, Math.Floor((double) count / stride));
+
+        private int pointToCount(Point point, int stride) => (int) (point.X + point.Y * stride);
+
+        private void startTrackButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (trackPoints.Count == 0) return;
+
+            csvname = String.Format("{0}\\{1}.csv", Directory.GetCurrentDirectory(), System.DateTime.Now.Ticks);
+            write = new StreamWriter(csvname);
+            write.Write("Timestamp,");
+
+            foreach(Point point in trackPoints)
+            {
+                write.Write(String.Format("({0} {1}),", point.X, point.Y));
+            }
+
+            write.WriteLine();
+
+            write.Flush();
+
+            tracking = true;
+        }
+
+        private void stopTrackButton_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (tracking)
+            {
+                tracking = false;
+
+                write.Close();
+            }
+        }
     }
 }
