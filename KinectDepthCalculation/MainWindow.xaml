@@ -23,7 +23,7 @@
             <Viewbox Grid.Column="0" HorizontalAlignment="Center">
                 <Image Source="{Binding DepthImageSource}" Stretch="UniformToFill" Name="depthImageViewer" MouseDown="depthImageViewer_MouseDown"/>
             </Viewbox>
-            
+
 
             <StackPanel Grid.Column="1">
                 <DockPanel Margin="10 10 10 10">
@@ -32,24 +32,31 @@
                     <Slider Minimum="1" Maximum="{Binding MaximumDepth}" TickFrequency="1" IsSnapToTickEnabled="True" Name="depthValue" Value="8192" MinWidth="200" ValueChanged="DepthSlider_ValueChanged"></Slider>
                 </DockPanel>
                 <DockPanel Margin="10 10 10 10">
-                    <Label DockPanel.Dock="Left">Region 1</Label>
-                    <Button DockPanel.Dock="Right" Click="Button_Draw_Region_1_Click">Draw</Button>
+                    <Button Name="addTrackPointButton" Content="Add Tracking Point" Click="addTrackPointButton_Click"/>
                 </DockPanel>
                 <DockPanel Margin="10 10 10 10">
-                    <Label DockPanel.Dock="Left" Margin="0 0 20 0">Mean Depth</Label>
-                    <TextBox Text="-1" Name="Region1DepthValue" Focusable="False"/>
+                    <Button Name="clearTrackPointButton" Content="Clear Tracking Points" Click="clearTrackPointButton_Click"/>
                 </DockPanel>
                 <DockPanel Margin="10 10 10 10">
-                    <Label DockPanel.Dock="Left">Region 2</Label>
-                    <Button DockPanel.Dock="Right" Click="Button_Draw_Region_2_Click">Draw</Button>
+                    <Label Name ="TrackPointLabel" Content="Tracking Points: " DockPanel.Dock="Left" Width="100"/>
+                    <Label Name ="TrackPointCount" Content="0"  DockPanel.Dock="Right" Width="30"/>
                 </DockPanel>
                 <DockPanel Margin="10 10 10 10">
-                    <Label DockPanel.Dock="Left" Margin="0 0 20 0">Mean Depth</Label>
-                    <TextBox Text="-1" Name="Region2DepthValue" Focusable="False"/>
+                    <Button Name="startTrackButton" Content="Start Tracking" Click="startTrackButton_Click"/>
+
+                </DockPanel>
+                <DockPanel Margin="10 10 10 10">
+                    <Button Name="stopTrackButton" Content="Stop Tracking" Click="stopTrackButton_Click"/>
                 </DockPanel>
 
+                <DockPanel Margin="10 10 10 10">
+                    <Label Name ="TrackFramesLabel" Content="Total Frames: " DockPanel.Dock="Left" Width="100"/>
+                    <Label Name ="TrackFrames" Content="0"  DockPanel.Dock="Right" Width="30"/>
+                </DockPanel>
+
+
             </StackPanel>
-            
+
         </Grid>
 
     </Grid>
